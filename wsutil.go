@@ -1,7 +1,6 @@
 package wsutil
 
 import (
-	"bytes"
 	"crypto/tls"
 	"fmt"
 	"io"
@@ -147,7 +146,8 @@ func (p *ReverseProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		logFunc("Hijack error: %v", err)
 		return
 	}
-	fmt.Printf(bufrw)
+	str, _ := bufrw.ReadString('\n')
+	fmt.Printf(str)
 	defer nc.Close() // must close the underlying net connection after hijacking
 	defer d.Close()
 
