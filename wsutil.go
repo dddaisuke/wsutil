@@ -1,7 +1,9 @@
 package wsutil
 
 import (
+	"bytes"
 	"crypto/tls"
+	"fmt"
 	"io"
 	"log"
 	"net"
@@ -155,6 +157,9 @@ func (p *ReverseProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	errc := make(chan error, 2)
 	cp := func(dst io.Writer, src io.Reader) {
+		buf := new(bytes.Buffer)
+		io.Copy(buf, src)
+		fmt.Printf(buf.String())
 		_, err := io.Copy(dst, src)
 		errc <- err
 	}
