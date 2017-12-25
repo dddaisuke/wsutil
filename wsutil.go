@@ -139,13 +139,15 @@ func (p *ReverseProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Not a hijacker?", 500)
 		return
 	}
+
 	// Hijack() tells the http package not to do anything else with the connection.
 	// After, it bcomes this functions job to manage it. `nc` is of type *net.Conn.
-	nc, _, err := hj.Hijack()
+	nc, bufrw, err := hj.Hijack()
 	if err != nil {
 		logFunc("Hijack error: %v", err)
 		return
 	}
+	fmt.Printf(bufrw)
 	defer nc.Close() // must close the underlying net connection after hijacking
 	defer d.Close()
 
@@ -157,9 +159,6 @@ func (p *ReverseProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	errc := make(chan error, 2)
 	cp := func(dst io.Writer, src io.Reader) {
-		buf := new(bytes.Buffer)
-		io.Copy(buf, src)
-		fmt.Printf(buf.String())
 		_, err := io.Copy(dst, src)
 		errc <- err
 	}
